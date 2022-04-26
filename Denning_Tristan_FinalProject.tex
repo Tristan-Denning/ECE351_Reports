@@ -1,0 +1,274 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                              %
+% Tristan Denning                                              %
+% ECE 351-51                                                   %
+% Lab 12                                                       %
+% 26APR2022                                                  % 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% DOCUMENT PREAMBLE %%%
+\documentclass[hidelinks, 12pt]{report}
+\usepackage[english]{babel}
+%\usepackage{natbib}
+\usepackage{url}
+\usepackage{amssymb}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\graphicspath{{images/}}
+\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{vmargin}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codeblue}{rgb}{0,0,0.95}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{mystyle}{
+backgroundcolor=\color{backcolour},
+commentstyle=\color{codegreen},
+keywordstyle=\color{codeblue},
+numberstyle=\tiny\color{codegray},
+stringstyle=\color{codegreen},
+basicstyle=\ttfamily\footnotesize,
+breakatwhitespace=false,
+breaklines=true,
+captionpos=b,
+keepspaces=true,
+numbers=left,
+numbersep=5pt,
+showspaces=false,
+showstringspaces=false,
+showtabs=false,
+tabsize=2
+}
+\lstset{style=mystyle}
+\setmarginsrb{3 cm}{2.5 cm}{3 cm}{2.5 cm}{1 cm}{1.5 cm}{1 cm}{1.5 cm}
+\title{Lab 12 - Final Project}                                                                                   %%%%%%%% LAB NUMBER
+% Title
+\author{ Tristan Denning}
+% Author
+\date{26APR2022}
+% Date
+\makeatletter
+\let\thetitle\@title
+\let\theauthor\@author
+\let\thedate\@date
+\makeatother
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\theauthor}
+\lhead{\thetitle}
+\cfoot{\thepage}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%
+\begin{titlepage}
+\centering
+\vspace*{0.5 cm}
+\includegraphics[scale = 0.25]{640px-University_of_Idaho_logo.svg.png}\\[1.0 cm] % 
+\begin{center}    \textsc{\Large   ECE 351 - Section 51 }\\[2.0 cm]                                  %%%%%%%%%%% CLASS AND SECTION
+\end{center}% University Name
+\textsc{\Large Filter Design}\\[0.5 cm]                %%%%%%%%%%% LAB TITLE
+
+\rule{\linewidth}{0.2 mm} \\[0.4 cm]
+{ \huge \bfseries \thetitle}\\
+\rule{\linewidth}{0.2 mm} \\[1.5 cm]
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+% \emph{Submitted To:}\\
+% Name\\
+% Affiliation\\
+%contact info\\
+\end{flushleft}
+\end{minipage}~
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Submitted By:} \\
+Tristan Denning
+\end{flushright}
+\end{minipage}\\[2 cm]
+% \includegraphics[scale = 0.5]{PICMathLogo.png}
+\end{titlepage}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%
+
+\tableofcontents
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%
+\renewcommand{\thesection}{\arabic{section}}
+\section{Introduction}                                                                                      %%%%%%%%%%%%%%%%  INTRODUCTION
+
+The objective of this lab is to apply the skills and concepts from the course into a practical application. The specific goal of this lab is to design a filter to isolate a communications signal within the range of 1.8 - 2 kHz and attenuate any outside frequencies.
+
+
+
+*All of the code used to accomplish the goals of this lab can be accessed at my Github page: 
+\url{https://github.com/Tristan-Denning}
+
+\section{Equations} 
+\textbf{Task 2 - RLC Bandpass Filter}
+\begin{equation}
+    H(s) = \frac{\frac{R}{L}s}{s^2+\frac{R}{L}s+ \frac{1}{LC}}
+    \end{equation}
+    \begin{equation*}
+    s\rightarrow j\omega = \frac{\frac{R}{L}j\omega}{-\omega^2+\frac{R}{L}j\omega+ \frac{1}{LC}}
+    \end{equation*}
+    
+Where:
+\[ R = 500 \ \Omega \]
+\[ L = 79.6 \  mH \]
+\[ C = 88.1745 \  nF \]
+
+\newpage
+\section {Methodology}      
+    \textbf{Task 1 - Identifying Noise Magnitudes }
+    
+    First, the data within the noisy signal .CSV file was read and transferred into an array in python. Then the FFT was performed and the fourier transform was plotted to identify at which frequencies noise was occurring, and their associated magnitudes. Plots were created in the ranges: [-$\infty$, $\infty$], [0, 450000 Hz], [0 - 1800 Hz], [1800 - 2000 Hz] and [2000 Hz - 100 kHz] to isolate the respective ranges.
+    
+    \textbf{Task 2 - Analog Filter Design}
+    
+    The goal of task two was to create a band-pass filter that would allow for signals in the range of [1800 - 2000 Hz] to pass. Other specifications included: 
+    \begin{enumerate}
+        \item The position measurement information is attenuated by less than -0.3dB
+        \item The low-frequency vibration noise must be attenuated by at least -30 dB.
+        \item The switching amplifier noise must be attenuated by at least -21dB
+        \item All noise that exists at frequencies greater than 100kHz must be completely attenuated
+    (magnitudes less than 0.05V can be considered completely attenuated for all practical
+    purposes in this situation)
+    \end{enumerate}
+    
+    To design the filter, the following band-pass filter parameters were used: 
+    
+    \textbf{Series Bandpass Filter}
+    
+    \begin{figure}[!h]
+    \centering
+    \includegraphics[scale=.75]{rlc.png}
+    \end{figure}
+    \begin{equation*}
+        \omega_0 = \sqrt{\frac{1}{RC}}
+    \end{equation*}
+    \begin{equation*}
+        \beta = \sqrt{\frac{1}{RC}}
+    \end{equation*}
+    
+    Initially a 100 $\Omega$ resistor was selected, but the measurement information signal was attenuated by too much. The resistor value was adjusted to 500 $\Omega$ to alter the attenuation to less than -0.3 dB for the [1800 - 2000 Hz] range as the project specified. The resulting filter component values were: 
+    
+    \begin{enumerate}
+        \item R = 500 $\Omega$
+        \item C = 88.1745 \  nF
+        \item L = 79.6 \  mH 
+    \end{enumerate}
+    
+    \textbf{Task 3 - Bode Plots for the Filter}
+    
+    The filter components and transfer function (eqn(1)) were defined as variables in python. Then the con.bode function from the control library was used to plot the transfer function at each important range.
+    
+    \textbf{Task 4 - Perform FFT on Filtered Signal to Verify}
+    
+    To show that the filter specifications were met, the filtered signal was put through the FFT function and plotted at each range of frequencies.
+    
+\section{Results}
+\textbf{Input vs Output Signal}
+
+    \begin{figure}[!h]
+    \centering
+    \includegraphics[scale=0.55]{NoisySignal.png}
+    \end{figure}
+    
+    \begin{figure}[!h]
+    \centering
+    \includegraphics[scale=0.55]{FilteredSignal.png}
+    \end{figure}
+    \newpage
+    Clearly, the filtered signal is much less noisy. This represents a much cleaner modulated signal that is expected for communications.
+
+\textbf{RLC Band-pass Filter Bode Plots: }
+    
+    \begin{figure}[!h]
+    
+    Full Range
+    
+    \includegraphics[scale=0.55]{BodeFullRange.png}
+    \end{figure}
+    
+    \begin{figure}[!h]
+    
+    Low Frequencies - [0 - 1800 Hz]
+    
+    \includegraphics[scale=0.55]{Bode 0-1800.png}
+    \end{figure}
+    
+
+
+    Unfiltered Range - [1800 - 2000 Hz]
+    
+    \includegraphics[scale=0.55]{Bode1800-2000.png}
+
+  
+    
+  \newpage
+    High Frequencies - [2000 - 100000 Hz]
+    
+    \includegraphics[scale=0.55]{Bode2000-100000.png}
+  
+  Here, it is clear that frequencies above 100000 Hz have at least a -60 dB attenuation, and will therefore completely disappear for all practical means.
+
+\textbf{FFT Noise Plots Filtered vs Unfiltered}
+
+    \includegraphics[width=3in]{FFTfullUnfiltered.png}
+    \includegraphics[width=3in]{FFT Full Filtered.png}
+    \newpage
+Zoomed In Full Range: 
+
+    \includegraphics[width=3in]{FFTZoomedUnfilter.png}
+    \includegraphics[width=3in]{FFTZoomedFilter.png}
+    
+Low Frequency [0 - 1800 Hz]
+
+    \includegraphics[width=3in]{LowFreqUnfilter.png}
+    \includegraphics[width=3in]{LowFreq Filtere.png}
+    
+    Only one significant frequency of undesired signal exists in the low frequency region. This plot verifies that it is nearly completely attenuated through the filter.
+    
+Measurement Information Range [1800 - 2000]
+
+    \includegraphics[width=3in]{MidFFtUnfilter.png}
+    \includegraphics[width=3in]{MidFreqfilter.png}    
+
+This plot shows that the frequencies within the [1800 -2000 Hz] range were not attenuated.
+
+High Frequencies [2000 - 100000]
+
+    \includegraphics[width=3in]{HighFreqUnfil.png}
+    \includegraphics[width=3in]{HighFreqk Filter.png}  
+    
+This plot verifies that the high frequency switching amplifier signals are attenuated through the filter.
+\section{Error}
+
+Some error was experienced during this project while designing the RLC Band-pass filter. The design equations yield component values for a corner frequency attenuation of -3dB, which was greater than the lab specifications. To limit the attenuation at the corner frequencies to -0.3 dB, the resistor value was increased until the Bode plot showed the proper corner frequency attenuation. The result was a filter that met the design requirements that a motivated engineer may want to improve someday. 
+
+
+\section{Questions}
+
+\begin{enumerate}
+    \item Earlier this semester, you were asked what you personally wanted to get out of taking this
+course. Do you feel like that personal goal was met? Why or why not?
+    \begin{enumerate}
+        \item Earlier this semester I stated that I wanted to become proficient in python and writing technical documents via Latex. I feel that I have met these personal goals as a result of this lab. This lab also taught me how to perform valuable signal analysis techniques with Python that I can use in my future engineering endeavors.
+    \end{enumerate}
+    
+\end{enumerate}
+
+\section{Conclusion}
+The objective of this lab was fulfilled. A bandpass filter was created to isolate frequencies from a noisy input signal within the range [1800 - 2000 Hz]. Python was used to analyze the signal, perform tests on the filter, and verify that the resultant signal contained the desired frequencies and attenuated all other frequencies. This lab provided insight to one of the many practical applications of signal analysis and filter design.
+
+
+\end{document}
+
